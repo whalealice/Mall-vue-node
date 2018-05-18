@@ -36,9 +36,9 @@
       </div>
       <div class="navbar-right-container" style="display: flex;">
         <div class="navbar-menu-container">
-          <!--<span class="navbar-link" v-text="nickName" v-if="nickName"></span>-->
-          <!--<a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!nickName">Login</a>-->
-          <!--<a href="javascript:void(0)" class="navbar-link" @click="logOut" v-else>Logout</a>-->
+          <span class="navbar-link" v-text="nickName" v-if="nickName"></span>
+          <a href="javascript:void(0)" class="navbar-link" @click="loginModalFlag=true" v-if="!nickName">Login</a>
+          <a href="javascript:void(0)" class="navbar-link" @click="logOut" v-else>Logout</a>
           <div class="navbar-cart-container">
             <!--<span class="navbar-cart-count" v-text="cartCount" v-if="cartCount"></span>-->
             <a class="navbar-link navbar-cart-link" href="/#/cart">
@@ -87,14 +87,16 @@
 <script>
 import './../assets/css/login.css'
 import axios from 'axios'
+import Api from './../assets/api'
 //import {mapState} from 'vuex'
 export default {
   data () {
     return {
-      userName: 'admin',
+      userName: 'polaris',
       userPwd: '123456',
       errorTip: false,
-      loginModalFlag: false
+      loginModalFlag: false,
+      nickName: ''
     }
   },
 //        computed:{
@@ -128,7 +130,7 @@ export default {
         this.errorTip = true
         return
       }
-      axios.post('/users/login', {
+      axios.post(Api.fetchLogin, {
         userName: this.userName,
         userPwd: this.userPwd
       }).then((response) => {
@@ -136,8 +138,9 @@ export default {
         if (res.status === '0') {
           this.errorTip = false
           this.loginModalFlag = false
-          this.$store.commit('updateUserInfo', res.result.userName)
-          this.getCartCount()
+          this.nickName = res.result.userName
+//          this.$store.commit('updateUserInfo', res.result.userName)
+//          this.getCartCount()
         } else {
           this.errorTip = true
         }

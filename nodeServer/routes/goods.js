@@ -76,70 +76,85 @@ router.get('/images/*', function (req, res) {
 // 加入到购物车
 router.post("/addCart", function (req,res,next) {
   var userId = '19910616',productId = req.body.productId;
-
-  User.findOne({userId:userId}, function (err,userDoc) {
-    if(err){
-      res.json({
-        status:"1",
-        msg:err.message
-      })
-    }else{
-      console.log("userDoc:"+userDoc);
-      if(userDoc){
-        var goodsItem = '';
-        userDoc.cartList.forEach(function (item) {
-          if(item.productId == productId){
-            goodsItem = item;
-            item.productNum ++;
-          }
-        });
-        if(goodsItem){
-          userDoc.save(function (err2,doc2) {
-            if(err2){
-              res.json({
-                status:"1",
-                msg:err2.message
-              })
-            }else{
-              res.json({
-                status:'0',
-                msg:'',
-                result:'success add'
-              })
-            }
-          })
-        }else{
-          Goods.findOne({productId:productId}, function (err1,doc) {
-            if(err1){
-              res.json({
-                status:"1",
-                msg:err1.message
-              })
-            }else{
-              if(doc){
-                doc.productNum = 1;
-                doc.checked = 1;
-                userDoc.cartList.push(doc);
-                userDoc.save(function (err2,doc2) {
-                  if(err2){
-                    res.json({
-                      status:"1",
-                      msg:err2.message
-                    })
+  // 查找用户表
+  function findUser(){
+    return new Promise((resolve, reject) => {
+      User.findOne({'userId':userId}, (err,userDoc) => {
+        if (err) {
+          reject(err)
+          return
+        } else {
+          if (userDoc) {
+            var goodsItem = '';
+            // 查看该用户下是否已经添加过这件商品,添加过该商品的数量加1
+            userDoc.cartList.forEach((item) => {
+              if(item.productId == productId){
+                goodsItem = item;
+                item.productNum ++;
+              }
+              if(goodsItem){
+                userDoc.save((err,doc) => {
+                  if(err){
+                    reject(err)
+                    return
                   }else{
                     res.json({
                       status:'0',
-                      msg:'success add',
-                      result:'success add'
+                      msg:'success add old',
+                      result:'success add old'
                     })
                   }
                 })
+              } else {
+                let data = {
+                  'productId': productId,
+                  'userDoc': userDoc
+                }
+                resolve(data)
               }
+            })
+          }
+        }
+      })
+    })
+  }
+  function addGoods(data) {
+    let { productId, userDoc } = data
+    Goods.findOne({productId: productId}, (err, doc) => {
+      if (err) {
+        reject(err)
+        return
+      } else {
+        if (doc) {
+          doc.productNum = 1;
+          doc.checked = 1;
+          userDoc.cartList.push(doc);
+          userDoc.save( (err, doc) => {
+            if (err) {
+              reject(err)
+              return
+            } else {
+              res.json({
+                status: '0',
+                msg: 'success add new',
+                result: 'success add new'
+              })
             }
-          });
+          })
         }
       }
-    }
-  })
+    })
+  }
+  findUser()
+    .then( addGoods )
+    .catch((err) => {
+      if (err) {
+        res.json({
+          status: "1",
+          msg: err.message,
+          result: []
+        })
+      }
+    })
 })
 module.exports = router;

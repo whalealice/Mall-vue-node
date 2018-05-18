@@ -29,7 +29,6 @@
               </dd>
             </dl>
           </div>
-          
           <!-- search result accessories list -->
           <div class="accessory-list-wrap">
             <div class="accessory-list col-4">
@@ -88,6 +87,7 @@ import NavFooter from './../components/NavFooter'
 import NavBread from './../components/NavBread'
 import Modal from './../components/Modal'
 import axios from 'axios'
+import Api from './../assets/api';
 export default {
   data () {
     return {
@@ -140,7 +140,7 @@ export default {
         priceLevel: this.priceChecked
       }
       this.loading = true
-      axios.post('/api/goods/goods', param).then((response) => {
+      axios.post( Api.fetchGoods, param).then((response) => {
         var res = response.data
         this.loading = false
         if (res.status === '0') {
@@ -180,7 +180,7 @@ export default {
       }, 500)
     },
     addCart (productId) {
-      axios.post('/api/goods/addCart', {
+      axios.post( Api.addCart, {
         productId: productId
       }).then((res) => {
         var _res = res.data
