@@ -87,7 +87,7 @@ import NavFooter from './../components/NavFooter'
 import NavBread from './../components/NavBread'
 import Modal from './../components/Modal'
 import axios from 'axios'
-import Api from './../assets/api';
+import Api from './../assets/api'
 export default {
   data () {
     return {
@@ -140,8 +140,8 @@ export default {
         priceLevel: this.priceChecked
       }
       this.loading = true
-      axios.post( Api.fetchGoods, param).then((response) => {
-        var res = response.data
+      console.log(param)
+      axios.post('/api/goods/list', param).then((res) => {
         this.loading = false
         if (res.status === '0') {
           if (flag) {
@@ -180,13 +180,12 @@ export default {
       }, 500)
     },
     addCart (productId) {
-      axios.post( Api.addCart, {
+      axios.post(Api.addCart, {
         productId: productId
       }).then((res) => {
-        var _res = res.data
-        if (_res.status === 0) {
+        if (res.status === '0') {
           this.mdShowCart = true
-          this.$store.commit('updateCartCount', 1)
+//          this.$store.commit('updateCartCount', 1)
         } else {
           this.mdShow = true
         }

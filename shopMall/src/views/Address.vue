@@ -156,6 +156,7 @@ import NavFooter from './../components/NavFooter'
 import NavBread from './../components/NavBread'
 import Modal from './../components/Modal'
 import axios from 'axios'
+import Api from './../assets/api'
 export default {
   data () {
     return {
@@ -183,10 +184,15 @@ export default {
   },
   methods: {
     init () {
-      axios.get('/users/addressList').then((response) => {
-        let res = response.data
+      axios.post(Api.fetchAddress,{'act':'list'}).then((res) => {
         this.addressList = res.result
-        this.selectedAddrId = this.addressList[0].addressId
+        this.addressList.forEach((item,index)=>{
+          if(item.isDefault){
+            this.checkIndex = index;
+            this.selectedAddrId = item.addressId;
+          }
+        })
+//        this.selectedAddrId = this.addressList[2].addressId
       })
     },
     expand () {
@@ -197,10 +203,10 @@ export default {
       }
     },
     setDefault (addressId) {
-      axios.post('/users/setDefault', {
-        addressId: addressId
-      }).then((response) => {
-        let res = response.data
+      axios.post(Api.fetchAddress, {
+        'addressId': addressId,
+        'act': 'set'
+      }).then((res) => {
         if (res.status === '0') {
           console.log('set default')
           this.init()
@@ -215,10 +221,10 @@ export default {
       this.addressId = addressId
     },
     delAddress () {
-      axios.post('/users/delAddress', {
-        addressId: this.addressId
-      }).then((response) => {
-        let res = response.data
+      axios.post(Api.fetchAddress, {
+        'addressId': this.addressId,
+        'act': 'delete'
+      }).then((res) => {
         if (res.status === '0') {
           console.log('del suc')
           this.isMdShow = false

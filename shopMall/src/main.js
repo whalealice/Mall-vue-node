@@ -7,6 +7,7 @@ import Vuex from 'vuex'
 import VueLazyload from 'vue-lazyload'
 import infiniteScroll from 'vue-infinite-scroll'
 import {currency} from './util/currency'
+import axios from 'axios'
 
 import './assets/css/base.css'
 import './assets/css/checkout.css'
@@ -20,6 +21,24 @@ Vue.use(VueLazyload, {
 })
 Vue.filter('currency', currency)
 Vue.config.productionTip = false
+
+axios.interceptors.response.use(function (response) {
+  //143 -- 登陆过期
+  if (response.data.status === '10001' ) {
+    console.log(response.data.msg);
+    window.location.href = '#/goods';
+    // message.error(response.data.errorMsg);
+    // setTimeout(function(){
+    //   window.location.href = '/';
+    // },500)
+
+  }
+  return response.data;
+
+}, function (error) {
+  // Do something with response error
+  return Promise.reject(error)
+})
 
 /* eslint-disable no-new */
 new Vue({

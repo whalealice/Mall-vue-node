@@ -70,7 +70,7 @@
                     </a>
                   </div>
                   <div class="cart-item-pic">
-                    <img v-lazy="'/static/'+item.productImage" v-bind:alt="item.productName">
+                    <img v-lazy="'/api'+item.productImage" v-bind:alt="item.productName">
                   </div>
                   <div class="cart-item-title">
                     <div class="item-name">{{item.productName}}</div>
@@ -91,7 +91,7 @@
                   </div>
                 </div>
                 <div class="cart-tab-4">
-                  <div class="item-price-total">{{(item.productNum*item.salePrice)|currency('$')}}</div>
+                  <div class="item-price-total">{{(item.productNum*item.salePrice)|currency('¥')}}</div>
                 </div>
                 <div class="cart-tab-5">
                   <div class="cart-item-opration">
@@ -120,7 +120,7 @@
             </div>
             <div class="cart-foot-r">
               <div class="item-total">
-                Item total: <span class="total-price">{{totalPrice|currency('$')}}</span>
+                Item total: <span class="total-price">{{totalPrice|currency('¥')}}</span>
               </div>
               <div class="btn-wrap">
                 <a class="btn btn--red" v-bind:class="{'btn--dis':checkedCount==0}" @click="checkOut">Checkout</a>
@@ -147,6 +147,7 @@ import NavBread from './../components/NavBread'
 import Modal from './../components/Modal'
 import {currency} from './../util/currency'
 import axios from 'axios'
+import Api from './../assets/api'
 export default {
   data () {
     return {
@@ -190,8 +191,7 @@ export default {
   },
   methods: {
     init () {
-      axios.get('/users/cartList').then((response) => {
-        let res = response.data
+      axios.post(Api.cartList,{}).then((res) => {
         this.cartList = res.result
       })
     },
@@ -202,18 +202,23 @@ export default {
       this.delItem = item
       this.modalConfirm = true
     },
-    delCart () {
-      axios.post('/users/cartDel', {
-        productId: this.delItem.productId
-      }).then((response) => {
-        let res = response.data
+    postCart (data){
+      axios.post( Api.cartDel, data ).then((res) => {
         if (res.status === '0') {
           this.modalConfirm = false
-          var delCount = this.delItem.productNum
-          this.$store.commit('updateCartCount', -delCount)
-          this.init()
+//          var delCount = this.delItem.productNum
+//          this.$store.commit('updateCartCount', -delCount)
+          if(data.act === 'delete'){
+            this.init()
+          } else if (data.act === 'edit'){
+//            this.$store.commit('updateCartCount', flag === 'add' ? 1 : -1)
+          }
+          
         }
       })
+    },
+    delCart () {
+      this.postCart({'act':'delete','productId': this.delItem.productId});
     },
     editCart (flag, item) {
       if (flag === 'add') {
@@ -226,15 +231,11 @@ export default {
       } else {
         item.checked = item.checked === '1' ? '0' : '1'
       }
-      axios.post('/users/cartEdit', {
-        productId: item.productId,
-        productNum: item.productNum,
-        checked: item.checked
-      }).then((response) => {
-        let res = response.data
-        if (res.status === '0') {
-          this.$store.commit('updateCartCount', flag === 'add' ? 1 : -1)
-        }
+      this.postCart({
+        'act':'edit',
+        'productId': this.productId,
+        'productNum': item.productNum,
+        'checked': item.checked
       })
     },
     toggleCheckAll () {
@@ -242,14 +243,18 @@ export default {
       this.cartList.forEach((item) => {
         item.checked = flag ? '1' : '0'
       })
-      axios.post('/users/editCheckAll', {
-        checkAll: flag
-      }).then((response) => {
-        let res = response.data
-        if (res.status === '0') {
-          console.log('update suc')
-        }
+      this.postCart({
+        'act':'all',
+        'checkAll': flag
       })
+//      axios.post('/users/editCheckAll', {
+//        checkAll: flag
+//      }).then((response) => {
+//        let res = response.data
+//        if (res.status === '0') {
+//          console.log('update suc')
+//        }
+//      })
     },
     checkOut () {
       if (this.checkedCount > 0) {

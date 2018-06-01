@@ -109,19 +109,20 @@ export default {
    return this.$store.state.cartCount;
    }*/
   mounted () {
-//      this.checkLogin();
+      this.checkLogin();
   },
   methods: {
     checkLogin () {
-      axios.get('/users/checkLogin').then((response) => {
-        var res = response.data
+      axios.post(Api.checkLogin,{}).then((res) => {
         if (res.status === '0') {
-          this.$store.commit('updateUserInfo', res.result)
+          this.nickName = res.result.userName
+//          this.$store.commit('updateUserInfo', res.result)
           this.loginModalFlag = false
+//          alert(res.msg)
         } else {
-          if (this.$route.path !== '/goods') {
-            this.$router.push('/goods')
-          }
+//          if (this.$route.path !== '/goods') {
+//            this.$router.push('/goods')
+//          }
         }
       })
     },
@@ -130,11 +131,10 @@ export default {
         this.errorTip = true
         return
       }
-      axios.post(Api.fetchLogin, {
+      axios.post(Api.Login, {
         userName: this.userName,
         userPwd: this.userPwd
-      }).then((response) => {
-        let res = response.data
+      }).then((res) => {
         if (res.status === '0') {
           this.errorTip = false
           this.loginModalFlag = false
@@ -147,10 +147,11 @@ export default {
       })
     },
     logOut () {
-      axios.post('/users/logout').then((response) => {
-        let res = response.data
+      axios.post(Api.logOut).then((res) => {
         if (res.status === '0') {
-          this.$store.commit('updateUserInfo', res.result.userName)
+          this.nickName = false
+          alert(res.msg)
+//          this.$store.commit('updateUserInfo', res.result.userName)
         }
       })
     },
