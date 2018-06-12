@@ -19,7 +19,8 @@ const Api = {
   cartDel: host + '/users/cartDel',
   // 用户地址列表 userAddress
   fetchAddress: host + '/users/userAddress',
-  // 用户设置默认地址 defaultAddress
-  // defaultAddress: host + '/users/defaultAddress',
+  // 购物车计算生成订单
+  payMent: host + '/users/payMent',
+  orderDetail: host + '/users/orderDetail',
 }
 export default Api

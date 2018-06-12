@@ -231,9 +231,10 @@ export default {
       } else {
         item.checked = item.checked === '1' ? '0' : '1'
       }
+      console.log(item)
       this.postCart({
         'act':'edit',
-        'productId': this.productId,
+        'productId': item.productId,
         'productNum': item.productNum,
         'checked': item.checked
       })

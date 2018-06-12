@@ -42,6 +42,7 @@ import NavFooter from './../components/NavFooter'
 import NavBread from './../components/NavBread'
 import {currency} from './../util/currency'
 import axios from 'axios'
+import Api from './../assets/api'
 export default {
   data () {
     return {
@@ -63,17 +64,14 @@ export default {
     if (!orderId) {
       return
     }
-    axios.get('/users/orderDetail', {
-      params: {
-        orderId: orderId
-      }
-    }).then((response) => {
-      let res = response.data
+    axios.post(Api.orderDetail, {
+      orderId: orderId
+    }).then((res) => {
       if (res.status === '0') {
-        this.orderId = orderId
+        this.orderId = res.result.orderId
         this.orderTotal = res.result.orderTotal
       }
-    })
+    });
   }
 }
 </script>

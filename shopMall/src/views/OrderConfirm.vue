@@ -63,14 +63,14 @@
               <li v-for="(item,index) in cartList" v-if="item.checked=='1'" :key="index">
                 <div class="cart-tab-1">
                   <div class="cart-item-pic">
-                    <img v-lazy="'/static/'+item.productImage" :alt="item.productName">
+                    <img v-lazy="'/api'+item.productImage" :alt="item.productName">
                   </div>
                   <div class="cart-item-title">
                     <div class="item-name">{{item.productName}}</div>
                   </div>
                 </div>
                 <div class="cart-tab-2">
-                  <div class="item-price">{{item.salePrice|currency('$')}}</div>
+                  <div class="item-price">{{item.salePrice|currency('¥')}}</div>
                 </div>
                 <div class="cart-tab-3">
                   <div class="item-quantity">
@@ -135,6 +135,7 @@ import NavFooter from './../components/NavFooter'
 import NavBread from './../components/NavBread'
 import {currency} from './../util/currency'
 import axios from 'axios'
+import Api from './../assets/api'
 export default {
   data () {
     return {
@@ -159,8 +160,7 @@ export default {
   },
   methods: {
     init () {
-      axios.get('/users/cartList').then((response) => {
-        let res = response.data
+      axios.post(Api.cartList,{}).then((res)=> {
         this.cartList = res.result
         this.cartList.forEach((item) => {
           if (item.checked === '1') {
@@ -172,11 +172,11 @@ export default {
     },
     payMent () {
       var addressId = this.$route.query.addressId
-      axios.post('/users/payMent', {
+      axios.post(Api.payMent, {
         addressId: addressId,
         orderTotal: this.orderTotal
-      }).then((response) => {
-        let res = response.data
+      }).then((res) => {
+        
         if (res.status === '0') {
           this.$router.push({
             path: '/orderSuccess?orderId=' + res.result.orderId
